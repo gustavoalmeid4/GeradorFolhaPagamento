@@ -69,7 +69,6 @@ namespace ConversorCSV.Helpers
             // Dicionário para armazenar os pagamentos de cada funcionário
             Dictionary<int, Pagamento> pagamentosPorFuncionario = new Dictionary<int, Pagamento>();
 
-            // Percorrer a lista de folhas de ponto e preencher os modelos de pagamento correspondentes
             foreach (PontoFuncionario pontoFuncionario in listaFolhasPonto)
             {
                 if (pagamentosPorFuncionario.ContainsKey(pontoFuncionario.Codigo))
@@ -113,8 +112,6 @@ namespace ConversorCSV.Helpers
         // Função para calcular as horas extras com base em uma folha de ponto
         public int CalcularHorasExtras(PontoFuncionario pontoFuncionario)
         {
-            // Implemente sua lógica para calcular as horas extras com base na entrada e saída da folha de ponto
-            // Aqui está um exemplo simples que considera as horas extras como qualquer tempo além de 8 horas por dia
             TimeSpan entrada = TimeSpan.Parse(pontoFuncionario.Entrada);
             TimeSpan saida = TimeSpan.Parse(pontoFuncionario.Saida);
             TimeSpan horasTrabalhadas = saida - entrada;
