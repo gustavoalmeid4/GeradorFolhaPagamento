@@ -10,7 +10,7 @@ string? caminhoArquivo = Console.ReadLine();
 try
 {
     if (!string.IsNullOrEmpty(caminhoArquivo))
-        helpers.GetFolhaPagamento(caminhoArquivo);
+        helpers.GetFolhaPagamentoDepartamento(caminhoArquivo);
     else
         Console.WriteLine("Insira um arquivo válido e tente novamente!");
 }

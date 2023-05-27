@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConversorCSV.Models
 {
-    public class SistemaFechamentoMes : Pagamento
+    public class SistemaFechamentoMes
     {
         public string Departamento { get; set; }
         public int MesVigencia { get; set; }
@@ -14,6 +14,6 @@ namespace ConversorCSV.Models
         public decimal TotalPagar { get; set; }
         public decimal TotalDescontos { get; set; }
         public decimal TotalExtras { get; set; }
-        public List<PontoFuncionario> Funcionarios { get; set; }
+        public dynamic? Funcionarios { get; set; }
     }
 }

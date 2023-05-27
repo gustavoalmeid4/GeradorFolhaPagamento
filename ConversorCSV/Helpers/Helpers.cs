@@ -49,11 +49,11 @@ namespace ConversorCSV.Helpers
                 }
             }
 
-            string jsonSerialized = await JsonConvert.SerializeObject(records);
+            string jsonSerialized = JsonConvert.SerializeObject(records);
 
             return JsonConvert.DeserializeObject<List<PontoFuncionario>>(jsonSerialized);
 
-            
+
         }
 
         /// <summary>
@@ -61,10 +61,10 @@ namespace ConversorCSV.Helpers
         /// </summary>
         /// <param name="caminhoCSV"></param>
         /// <returns></returns>
-        public async string GetFolhaPagamento(string caminhoCSV)
+        public string GetFolhaPagamentoFuncionarios(string caminhoCSV)
         {
-            
-            var listaFolhasPonto =  await ConverteCSVParaJson(caminhoCSV);
+
+            var listaFolhasPonto = ConverteCSVParaJson(caminhoCSV);
 
             // Dicionário para armazenar os pagamentos de cada funcionário
             Dictionary<int, Pagamento> pagamentosPorFuncionario = new Dictionary<int, Pagamento>();
@@ -98,16 +98,55 @@ namespace ConversorCSV.Helpers
                 }
             }
 
-            // Converter os pagamentos para JSON
-            //Console.WriteLine(JsonConvert.SerializeObject(pagamentosPorFuncionario, Formatting.Indented));
             return JsonConvert.SerializeObject(pagamentosPorFuncionario, Formatting.Indented);
 
+        }
+
+        public string GetFolhaPagamentoDepartamento(string caminhoCSV)
+        {
+            string teste = GetFolhaPagamentoFuncionarios(caminhoCSV);
+            dynamic? listaFolhasPonto = JsonConvert.DeserializeObject(teste);
+            Dictionary<string, SistemaFechamentoMes> pagamentosPorDepartamento = new Dictionary<string, SistemaFechamentoMes>();
+            string nomeDepartamento = getNomeDepartamento(caminhoCSV);
+
+            // Verificar se o departamento já existe no dicionário
+            if (pagamentosPorDepartamento.ContainsKey(nomeDepartamento))
+            {
+                SistemaFechamentoMes sistemaFechamento = pagamentosPorDepartamento[nomeDepartamento];
+                sistemaFechamento.Funcionarios.AddRange(listaFolhasPonto);
+            }
+            else
+            {
+                SistemaFechamentoMes sistemaFechamento = new SistemaFechamentoMes
+                {
+                    Departamento = nomeDepartamento,
+                    MesVigencia = DateTime.Now.Month,
+                    AnoVigencia = DateTime.Now.Year,
+                    Funcionarios = listaFolhasPonto
+                };
+                pagamentosPorDepartamento[nomeDepartamento] = sistemaFechamento;
+            }
+
+            // Converter os pagamentos por departamento para JSON
+            string jsonPagamentosPorDepartamento = JsonConvert.SerializeObject(pagamentosPorDepartamento, Formatting.Indented);
+            Console.WriteLine(jsonPagamentosPorDepartamento);
+            return jsonPagamentosPorDepartamento;
+
+
+        }
+
+        private string getNomeDepartamento(string arquivoCSV)
+        {
+            string nomeArquivo = Path.GetFileNameWithoutExtension(arquivoCSV);
+            string[] partesNomeArquivo = nomeArquivo.Split('-');
+
+            return partesNomeArquivo[0].Trim(); 
         }
 
         // Função para remover o símbolo de moeda do valor monetário
         public string RemoverSimboloMoeda(string valor)
         {
-            return valor.Replace("R$", "").Replace(" ","").Trim();
+            return valor.Replace("R$", "").Replace(" ", "").Trim();
         }
 
         // Função para calcular as horas extras com base em uma folha de ponto
