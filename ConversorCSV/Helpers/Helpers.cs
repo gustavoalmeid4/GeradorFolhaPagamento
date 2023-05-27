@@ -69,7 +69,6 @@ namespace ConversorCSV.Helpers
             // Dicionário para armazenar os pagamentos de cada funcionário
             Dictionary<int, Pagamento> pagamentosPorFuncionario = new Dictionary<int, Pagamento>();
 
-            // Percorrer a lista de folhas de ponto e preencher os modelos de pagamento correspondentes
             foreach (PontoFuncionario pontoFuncionario in listaFolhasPonto)
             {
                 if (pagamentosPorFuncionario.ContainsKey(pontoFuncionario.Codigo))
