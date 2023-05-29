@@ -1,12 +1,13 @@
 # Console Application - Folha de Pagamento
 
-Este é um projeto de aplicativo de console desenvolvido em .NET 7 para processar a folha de pagamento de um departamento. O programa requer um arquivo CSV no formato "Departamento de Operações Especiais-Abril-2022.csv" para funcionar corretamente.
+Este é um projeto de aplicativo de console desenvolvido em .NET 7 para processar a folha de pagamento de um departamento.
 
 ## Pré-requisitos
 
 Certifique-se de ter os seguintes itens instalados em sua máquina de desenvolvimento:
 
 - .NET 7 SDK (pode ser baixado em: https://dotnet.microsoft.com/download/dotnet/7.0)
+- A aplicação requer um arquivo CSV no formato "Departamento de Operações Especiais-Abril-2022.csv" para funcionar corretamente.
 - As colunas do arquivo CSV devem ser separadas por ";" : Codigo;Nome;Valor;Data;Entrada;Saida;Almoco
 - Exemplo da estrutura do arquivo : https://prnt.sc/0R063-VO7wbv
 
