@@ -1,6 +1,4 @@
 ﻿using ConversorCSV.Helpers;
-using ConversorCSV.Models;
-using Newtonsoft.Json;
 
 Helpers helpers = new Helpers();
 
@@ -9,14 +7,14 @@ string? caminhoArquivo = Console.ReadLine();
 
 try
 {
-    if (!string.IsNullOrEmpty(caminhoArquivo))
-        helpers.GetFolhaPagamentoDepartamento(caminhoArquivo);
-    else
-        Console.WriteLine("Insira um arquivo válido e tente novamente!");
+  if (!string.IsNullOrEmpty(caminhoArquivo))
+    helpers.GetFolhaPagamentoDepartamento(caminhoArquivo);
+  else
+    Console.WriteLine("Insira um arquivo válido e tente novamente!");
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex.Message);
+  Console.WriteLine(ex.Message);
 }
 
 

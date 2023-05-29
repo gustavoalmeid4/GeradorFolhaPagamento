@@ -1,180 +1,266 @@
 ﻿using Microsoft.VisualBasic.FileIO;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using static System.Net.Mime.MediaTypeNames;
 using ConversorCSV.Models;
-using System.Globalization;
-using System.Drawing;
 
 namespace ConversorCSV.Helpers
 {
-    public class Helpers
+  public class Helpers
+  {
+
+    /// <summary>
+    /// Retorna um Json do arquivo de Ponto dos Funcionarios CSV
+    /// </summary>
+    /// <param name="DiretorioArquivoCSV">Diretorio do arquivo CSV</param>
+    /// <returns></returns>
+    private List<PontoFuncionario> ConverteCSVParaJson(string DiretorioArquivoCSV)
     {
 
-        /// <summary>
-        /// Retorna um Json do arquivo de Ponto dos Funcionarios CSV
-        /// </summary>
-        /// <param name="caminhoCSV"></param>
-        /// <returns></returns>
-        public List<PontoFuncionario> ConverteCSVParaJson(string caminhoCSV)
+      var records = new List<dynamic>();
+
+      using (var parser = new TextFieldParser(DiretorioArquivoCSV, Encoding.GetEncoding("ISO-8859-1")))
+      {
+        parser.TextFieldType = FieldType.Delimited;
+        parser.SetDelimiters(";");
+
+        string[] headersDocumento = parser.ReadFields();
+
+        while (!parser.EndOfData)
         {
+          string[] campos = parser.ReadFields();
+          dynamic record = new ExpandoObject();
 
-            var records = new List<dynamic>();
+          for (int i = 0; i < campos.Length; i++)
+          {
+            string header = headersDocumento[i];
+            string value = campos[i];
+            ((IDictionary<string, object>)record)[header] = value;
+          }
 
-            using (var parser = new TextFieldParser(caminhoCSV, Encoding.GetEncoding("ISO-8859-1")))
-            {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(";");
-
-                string[] headers = parser.ReadFields();
-
-                while (!parser.EndOfData)
-                {
-                    string[] fields = parser.ReadFields();
-                    dynamic record = new ExpandoObject();
-
-                    for (int i = 0; i < fields.Length; i++)
-                    {
-                        string header = headers[i];
-                        string value = fields[i];
-                        ((IDictionary<string, object>)record)[header] = value;
-                    }
-
-                    records.Add(record);
-                }
-            }
-
-            string jsonSerialized = JsonConvert.SerializeObject(records);
-
-            return JsonConvert.DeserializeObject<List<PontoFuncionario>>(jsonSerialized);
-
-
+          records.Add(record);
         }
+      }
 
-        /// <summary>
-        /// Retorna um Json da Folha de Pagamento dos Funcionarios
-        /// </summary>
-        /// <param name="caminhoCSV"></param>
-        /// <returns></returns>
-        public string GetFolhaPagamentoFuncionarios(string caminhoCSV)
-        {
+      string jsonSerialized = JsonConvert.SerializeObject(records);
 
-            var listaFolhasPonto = ConverteCSVParaJson(caminhoCSV);
-
-            // Dicionário para armazenar os pagamentos de cada funcionário
-            Dictionary<int, Pagamento> pagamentosPorFuncionario = new Dictionary<int, Pagamento>();
-
-            foreach (PontoFuncionario pontoFuncionario in listaFolhasPonto)
-            {
-                if (pagamentosPorFuncionario.ContainsKey(pontoFuncionario.Codigo))
-                {
-                    Pagamento pagamentoExistente = pagamentosPorFuncionario[pontoFuncionario.Codigo];
-                    pagamentoExistente.TotalReceber += Convert.ToDecimal(RemoverSimboloMoeda(pontoFuncionario.Valor));
-                    pagamentoExistente.HorasExtras += CalcularHorasExtras(pontoFuncionario);
-                    pagamentoExistente.DiasTrabalhados++;
-                }
-                else
-                {
-                    Pagamento novoPagamento = new Pagamento
-                    {
-                        Codigo = pontoFuncionario.Codigo,
-                        Nome = pontoFuncionario.Nome,
-                        Valor = pontoFuncionario.Valor,
-                        TotalReceber = Convert.ToDecimal(RemoverSimboloMoeda(pontoFuncionario.Valor)),
-                        HorasExtras = CalcularHorasExtras(pontoFuncionario),
-                        HorasDebito = 0,
-                        DiasFalta = 0,
-                        DiasExtras = 0,
-                        DiasTrabalhados = 1
-                    };
-
-                    pagamentosPorFuncionario[pontoFuncionario.Codigo] = novoPagamento;
-                }
-            }
-
-            return JsonConvert.SerializeObject(pagamentosPorFuncionario, Formatting.Indented);
-
-        }
-
-        public string GetFolhaPagamentoDepartamento(string caminhoCSV)
-        {
-            string teste = GetFolhaPagamentoFuncionarios(caminhoCSV);
-            dynamic? listaFolhasPonto = JsonConvert.DeserializeObject(teste);
-            Dictionary<string, SistemaFechamentoMes> pagamentosPorDepartamento = new Dictionary<string, SistemaFechamentoMes>();
-            string nomeDepartamento = getNomeDepartamento(caminhoCSV);
-
-            // Verificar se o departamento já existe no dicionário
-            if (pagamentosPorDepartamento.ContainsKey(nomeDepartamento))
-            {
-                SistemaFechamentoMes sistemaFechamento = pagamentosPorDepartamento[nomeDepartamento];
-                sistemaFechamento.Funcionarios.AddRange(listaFolhasPonto);
-            }
-            else
-            {
-                SistemaFechamentoMes sistemaFechamento = new SistemaFechamentoMes
-                {
-                    Departamento = nomeDepartamento,
-                    MesVigencia = DateTime.Now.Month,
-                    AnoVigencia = DateTime.Now.Year,
-                    Funcionarios = listaFolhasPonto
-                };
-                pagamentosPorDepartamento[nomeDepartamento] = sistemaFechamento;
-            }
-
-            // Converter os pagamentos por departamento para JSON
-            string jsonPagamentosPorDepartamento = JsonConvert.SerializeObject(pagamentosPorDepartamento, Formatting.Indented);
-            Console.WriteLine(jsonPagamentosPorDepartamento);
-            return jsonPagamentosPorDepartamento;
-
-
-        }
-
-        private string getNomeDepartamento(string arquivoCSV)
-        {
-            string nomeArquivo = Path.GetFileNameWithoutExtension(arquivoCSV);
-            string[] partesNomeArquivo = nomeArquivo.Split('-');
-
-            return partesNomeArquivo[0].Trim(); 
-        }
-
-        // Função para remover o símbolo de moeda do valor monetário
-        public string RemoverSimboloMoeda(string valor)
-        {
-            return valor.Replace("R$", "").Replace(" ", "").Trim();
-        }
-
-        // Função para calcular as horas extras com base em uma folha de ponto
-        public int CalcularHorasExtras(PontoFuncionario pontoFuncionario)
-        {
-            TimeSpan entrada = TimeSpan.Parse(pontoFuncionario.Entrada);
-            TimeSpan saida = TimeSpan.Parse(pontoFuncionario.Saida);
-            TimeSpan horasTrabalhadas = saida - entrada;
-            TimeSpan horasNormais = TimeSpan.FromHours(8);
-            TimeSpan horasExtras = (horasTrabalhadas - CalculaHoraAlmoco(pontoFuncionario.Almoco)) - horasNormais;
-
-            return horasExtras.TotalHours > 0 ? (int)horasExtras.TotalHours : 0;
-        }
-
-        static TimeSpan CalculaHoraAlmoco(string horarioAlmoco)
-        {
-            string[] horarios = horarioAlmoco.Split('-');
-            string horaInicioString = horarios[0].Trim();
-            string horaFimString = horarios[1].Trim();
-
-            TimeSpan horaInicio = TimeSpan.Parse(horaInicioString);
-            TimeSpan horaFim = TimeSpan.Parse(horaFimString);
-
-            return horaFim - horaInicio;
-
-        }
-
+      return JsonConvert.DeserializeObject<List<PontoFuncionario>>(jsonSerialized);
 
 
     }
+
+    /// <summary>
+    /// Retorna um Json da folha de pagamento dos Funcionarios.
+    /// </summary>
+    /// <param name="DiretorioArquivoCSV">Diretorio do arquivo CSV</param>
+    /// <returns></returns>
+    private List<Pagamento> GetFolhaPagamentoFuncionarios(string DiretorioArquivoCSV)
+    {
+      var listaFolhasPonto = ConverteCSVParaJson(DiretorioArquivoCSV);
+
+      List<Pagamento> pagamentos = new List<Pagamento>();
+
+      foreach (PontoFuncionario pontoFuncionario in listaFolhasPonto)
+      {
+        var pagamentoExistente = pagamentos.FirstOrDefault(p => p.Codigo == pontoFuncionario.Codigo);
+
+        if (pagamentoExistente != null)
+        {
+          pagamentoExistente.TotalReceber += Convert.ToDecimal(RemoverSimboloMoeda(pontoFuncionario.Valor)) * 8;
+          pagamentoExistente.HorasExtras += CalcularHorasExtras(pontoFuncionario);
+          pagamentoExistente.DiasTrabalhados++;
+        }
+        else
+        {
+          Pagamento novoPagamento = new Pagamento
+          {
+            Codigo = pontoFuncionario.Codigo,
+            Nome = pontoFuncionario.Nome,
+            Valor = pontoFuncionario.Valor,
+            TotalReceber = Convert.ToDecimal(RemoverSimboloMoeda(pontoFuncionario.Valor)) * 8,
+            HorasExtras = CalcularHorasExtras(pontoFuncionario),
+            HorasDebito = 0,
+            DiasFalta = 0,
+            DiasExtras = 0,
+            DiasTrabalhados = 1
+          };
+
+          pagamentos.Add(novoPagamento);
+        }
+      }
+
+      return pagamentos;
+    }
+
+    /// <summary>
+    /// Retorna um Json da folha de pagamento do departamento.
+    /// </summary>
+    /// <param name="DiretorioArquivoCSV">Diretorio do arquivo CSV</param>
+    /// <returns></returns>
+    public void GetFolhaPagamentoDepartamento(string DiretorioArquivoCSV)
+    {
+      List<Pagamento> listaFolhasPonto = GetFolhaPagamentoFuncionarios(DiretorioArquivoCSV);
+
+      List<SistemaFechamentoMes> pagamentosPorDepartamento = new List<SistemaFechamentoMes>();
+
+      string nomeDepartamento = GetInformacoesDepartamento(DiretorioArquivoCSV, "nomeDepartamento");
+
+      SistemaFechamentoMes sistemaExistente = pagamentosPorDepartamento.FirstOrDefault(s => s.Departamento == nomeDepartamento);
+      if (sistemaExistente != null)
+      {
+        sistemaExistente.Funcionarios.AddRange(listaFolhasPonto);
+      }
+      else
+      {
+        SistemaFechamentoMes sistemaFechamento = new SistemaFechamentoMes
+        {
+          Departamento = nomeDepartamento,
+          MesVigencia = GetInformacoesDepartamento(DiretorioArquivoCSV, "mesVigencia"),
+          AnoVigencia = GetInformacoesDepartamento(DiretorioArquivoCSV, "anoVigencia"),
+          TotalPagar = CalcularTotalPagarDepartamento(listaFolhasPonto),
+          TotalDescontos = CalcularDescontosDepartamento(listaFolhasPonto),
+          TotalExtras = CalcularHoraExtraDepartamento(listaFolhasPonto),
+          Funcionarios = listaFolhasPonto
+        };
+
+        pagamentosPorDepartamento.Add(sistemaFechamento);
+      }
+
+      GerarArquivoJsonFromCSV(JsonConvert.SerializeObject(pagamentosPorDepartamento, Formatting.Indented));
+    }
+
+    /// <summary>
+    /// Retorna o Nome , Mes ou Ano do Departamento
+    /// </summary>
+    /// <param name="DiretorioArquivoCSV"></param>
+    /// <returns></returns>
+    private string GetInformacoesDepartamento(string DiretorioArquivoCSV, string valorDepartamento)
+    {
+      string nomeArquivo = Path.GetFileNameWithoutExtension(DiretorioArquivoCSV);
+      string[] partesNomeArquivo = nomeArquivo.Split('-');
+
+      if (valorDepartamento.Equals("nomeDepartamento"))
+        return partesNomeArquivo[0].Trim();
+      if (valorDepartamento.Equals("anoVigencia"))
+        return partesNomeArquivo[1].Trim();
+      else
+        return partesNomeArquivo[2].Trim();
+
+    }
+
+    // Função para remover o símbolo de moeda do valor monetário
+    private string RemoverSimboloMoeda(string valor)
+    {
+      return valor.Replace("R$", "").Replace(" ", "").Trim();
+    }
+
+    private int CalcularHorasExtras(PontoFuncionario pontoFuncionario)
+    {
+      TimeSpan entrada = TimeSpan.Parse(pontoFuncionario.Entrada);
+      TimeSpan saida = TimeSpan.Parse(pontoFuncionario.Saida);
+      TimeSpan horasTrabalhadas = saida - entrada;
+      TimeSpan horasNormais = TimeSpan.FromHours(8);
+      TimeSpan horasExtras = (horasTrabalhadas - CalcularHoraAlmoco(pontoFuncionario.Almoco)) - horasNormais;
+
+      return horasExtras.TotalHours > 0 ? (int)horasExtras.TotalHours : 0;
+    }
+
+    private TimeSpan CalcularHoraAlmoco(string horarioAlmoco)
+    {
+      string[] horarios = horarioAlmoco.Split('-');
+      string horaInicioString = horarios[0].Trim();
+      string horaFimString = horarios[1].Trim();
+
+      TimeSpan horaInicio = TimeSpan.Parse(horaInicioString);
+      TimeSpan horaFim = TimeSpan.Parse(horaFimString);
+
+      return horaFim - horaInicio;
+
+    }
+
+    private decimal CalcularTotalPagarDepartamento(List<Pagamento> listaFolhasPonto)
+    {
+      decimal valorTotal = 0;
+      foreach (var pagamento in listaFolhasPonto)
+        valorTotal += pagamento.TotalReceber;
+
+      return valorTotal;
+    }
+    public decimal CalcularDescontosDepartamento(List<Pagamento> pagamentos)
+    {
+      decimal totalDescontos = 0;
+
+      foreach (Pagamento pagamento in pagamentos)
+      {
+        decimal descontosFuncionario = CalcularrDescontosFuncionario(pagamento);
+        totalDescontos += descontosFuncionario;
+      }
+
+      return totalDescontos;
+    }
+
+    private decimal CalcularrDescontosFuncionario(Pagamento pagamento)
+    {
+      decimal salarioBase = pagamento.TotalReceber;
+
+      decimal aliquota;
+      decimal deducao;
+
+      if (salarioBase <= 1903.98m)
+      {
+        aliquota = 0m;
+        deducao = 0m;
+      }
+      else if (salarioBase <= 2826.65m)
+      {
+        aliquota = 0.075m;
+        deducao = 142.80m;
+      }
+      else if (salarioBase <= 3751.05m)
+      {
+        aliquota = 0.15m;
+        deducao = 354.80m;
+      }
+      else if (salarioBase <= 4664.68m)
+      {
+        aliquota = 0.225m;
+        deducao = 636.13m;
+      }
+      else
+      {
+        aliquota = 0.275m;
+        deducao = 869.36m;
+      }
+
+      decimal descontoPagamento = (salarioBase * aliquota) - deducao;
+
+      string descontoFormatado = descontoPagamento.ToString("0.0");
+
+      return decimal.Parse(descontoFormatado);
+
+    }
+
+    private decimal CalcularHoraExtraDepartamento(List<Pagamento> pagamentos)
+    {
+      decimal valorHorasExtras = 0;
+      decimal totalHorasExtrasFuncionario = 0;
+      decimal totalHorasExtrasDepartamento = 0;
+
+      foreach (Pagamento pagamento in pagamentos)
+      {
+        valorHorasExtras = (Convert.ToDecimal(RemoverSimboloMoeda(pagamento.Valor)));
+        totalHorasExtrasFuncionario = pagamento.HorasExtras * valorHorasExtras;
+        totalHorasExtrasDepartamento += totalHorasExtrasFuncionario;
+      }
+
+      return totalHorasExtrasDepartamento;
+    }
+
+    private void GerarArquivoJsonFromCSV(string jsonDepartamento)
+    {
+      string caminhoArquivoGerado = "C:\\Users\\gustavo.fonseca\\Documents";
+      File.WriteAllText(caminhoArquivoGerado, jsonDepartamento);
+    }
+  }
 
 }
