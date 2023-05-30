@@ -8,8 +8,10 @@ Certifique-se de ter os seguintes itens instalados em sua máquina de desenvolvi
 
 - .NET 7 SDK (pode ser baixado em: https://dotnet.microsoft.com/download/dotnet/7.0)
 - A aplicação requer um arquivo CSV no formato "Departamento de Operações Especiais-Abril-2022.csv" para funcionar corretamente.
-- As colunas do arquivo CSV devem ser separadas por ";" : Codigo;Nome;Valor;Data;Entrada;Saida;Almoco
-- Exemplo da estrutura do arquivo : https://prnt.sc/0R063-VO7wbv
+- As colunas do arquivo CSV devem ser separadas por ";" ex: Codigo;Nome;Valor Hora;Data;Entrada;Saida;Almoco
+- A coluna Valor , deve conter o Simbolo monetário Exemplo : R$ 100,00. 
+- Não deve conter Caracteres Especiais nos nomes das Colunas Exemplo: Código , deve ser informado como Codigo.
+- Exemplo da estrutura do arquivo : [exemplo](https://prnt.sc/vMZ_k25KFDSR)
 
 ## Executando o programa
 
@@ -25,3 +27,6 @@ Siga as etapas abaixo para executar o programa:
 - O projeto foi desenvolvido usando .NET 7. Portanto, certifique-se de ter o SDK do .NET 7 instalado em sua máquina antes de executar o programa.
 
 - Este projeto é apenas um exemplo didático e pode não abordar todos os cenários e validações necessários em um sistema de folha de pagamento real.
+
+##Funcionamento
+
