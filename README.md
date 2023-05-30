@@ -7,51 +7,27 @@ Este é um projeto de aplicativo de console desenvolvido em .NET 7 para processa
 Certifique-se de ter os seguintes itens instalados em sua máquina de desenvolvimento:
 
 - .NET 7 SDK (pode ser baixado em: https://dotnet.microsoft.com/download/dotnet/7.0)
+
 - A aplicação requer um arquivo CSV no formato "Departamento de Operações Especiais-Abril-2022.csv" para funcionar corretamente.
-- As colunas do arquivo CSV devem ser separadas por ";" : Codigo;Nome;Valor;Data;Entrada;Saida;Almoco
-- Exemplo da estrutura do arquivo : https://prnt.sc/0R063-VO7wbv
+
+- As colunas do arquivo CSV devem ser separadas por ";" ex: Codigo;Nome;Valor Hora;Data;Entrada;Saida;Almoco
+
+- A coluna Valor , deve conter o Simbolo monetário. Exemplo : R$ 100,00. 
+
+- Não deve conter Caracteres Especiais nos nomes das Colunas Exemplo: Código , deve ser informado como Codigo.
+
+- Exemplo da estrutura do arquivo : [exemplo](https://prnt.sc/vMZ_k25KFDSR)
 
 ## Executando o programa
 
 Siga as etapas abaixo para executar o programa:
 
-1. Clone este repositório em sua máquina local ou faça o download do arquivo ZIP.
-
-2. Abra o terminal ou prompt de comando e navegue até o diretório raiz do projeto.
-
-3. Execute o seguinte comando para compilar o projeto:
-
-   ```shell
-   dotnet build
-   ```
-
-4. Certifique-se de ter o arquivo CSV "Departamento de Operações Especiais-Abril-2022.csv" disponível no diretório raiz do projeto.
-
-5. Execute o seguinte comando para iniciar o programa:
-
-   ```shell
-   dotnet run --project NomeDoProjeto.csproj "Departamento de Operações Especiais-Abril-2022.csv"
-   ```
-
-   Substitua "NomeDoProjeto.csproj" pelo nome do arquivo do projeto real, se necessário.
-
-6. O programa processará o arquivo CSV e exibirá a folha de pagamento do departamento.
-
-## Estrutura do projeto
-
-- `Program.cs`: Contém o ponto de entrada do programa e a lógica principal de processamento.
-
-- `Pagamento.cs`: Definição da classe `Pagamento` que representa um pagamento individual.
-
-- `SistemaFechamentoMes.cs`: Definição da classe `SistemaFechamentoMes` que representa o sistema de fechamento do mês para um departamento.
-
-- `PontoFuncionario.cs`: Definição da classe `PontoFuncionario` que representa um pagamento de cada funcionario.
-
-- `Helper.cs`: Classe de utilitário para processar arquivos CSV e suas classes de cálculo.
+1. Ao iniciar a aplicação , deverá ser informado o Caminho do arquivo CSV que vai ser processado e o Caminho de destino da Folha de Pagamento.
+2. Após a execução do programada , o arquivo Json processado poderá ser encontrado no caminho que foi passado na instrução acima .
 
 ## Observações
 
-- Certifique-se de fornecer o arquivo CSV correto ("Departamento de Operações Especiais-Abril-2022.csv") como argumento ao executar o programa. Caso contrário, o programa não será capaz de processar a folha de pagamento corretamente.
+- Certifique-se de fornecer o arquivo CSV correto ex:("Departamento de Operações Especiais-Abril-2022.csv") como argumento ao executar o programa. Caso contrário, o programa não será capaz de processar a folha de pagamento corretamente.
 
 - O projeto foi desenvolvido usando .NET 7. Portanto, certifique-se de ter o SDK do .NET 7 instalado em sua máquina antes de executar o programa.
 
