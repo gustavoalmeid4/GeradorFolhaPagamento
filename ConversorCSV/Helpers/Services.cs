@@ -274,7 +274,7 @@ namespace ConversorCSV.Helpers
             string jsonDepartamento = await this.GetFolhaPagamentoDepartamento(DiretorioArquivoCSV);
             string nomeArquivoFinal = GetInformacoesDepartamento(DiretorioArquivoCSV, "nomeDepartamento");
 
-            File.WriteAllText(Path.Combine(caminhoArquivoGerado, $"{nomeArquivoFinal}.json"), jsonDepartamento);
+            await File.WriteAllTextAsync(Path.Combine(caminhoArquivoGerado, $"{nomeArquivoFinal}.json"), jsonDepartamento);
         }
     }
 
