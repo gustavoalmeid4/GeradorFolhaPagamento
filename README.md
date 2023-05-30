@@ -12,7 +12,7 @@ Certifique-se de ter os seguintes itens instalados em sua máquina de desenvolvi
 
 - As colunas do arquivo CSV devem ser separadas por ";" ex: Codigo;Nome;Valor Hora;Data;Entrada;Saida;Almoco
 
-- A coluna Valor , deve conter o Simbolo monetário Exemplo : R$ 100,00. 
+- A coluna Valor , deve conter o Simbolo monetário. Exemplo : R$ 100,00. 
 
 - Não deve conter Caracteres Especiais nos nomes das Colunas Exemplo: Código , deve ser informado como Codigo.
 
