@@ -32,6 +32,3 @@ Siga as etapas abaixo para executar o programa:
 - O projeto foi desenvolvido usando .NET 7. Portanto, certifique-se de ter o SDK do .NET 7 instalado em sua máquina antes de executar o programa.
 
 - Este projeto é apenas um exemplo didático e pode não abordar todos os cenários e validações necessários em um sistema de folha de pagamento real.
-
-##Funcionamento
-
