@@ -23,7 +23,7 @@ Certifique-se de ter os seguintes itens instalados em sua máquina de desenvolvi
 Siga as etapas abaixo para executar o programa:
 
 1. Ao iniciar a aplicação , deverá ser informado o Caminho do arquivo CSV que vai ser processado e o Caminho de destino da Folha de Pagamento.
-2. Após a execução do programada , o arquivo Json processado pode ser encontrado no caminho que foi passado na instrução acima .
+2. Após a execução do programada , o arquivo Json processado poderá ser encontrado no caminho que foi passado na instrução acima .
 
 ## Observações
 
